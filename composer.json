@@ -1,0 +1,26 @@
+{
+    "name": "oleksandrsvitlyk/bloggeneration",
+    "description": "Project that can generate custom texts and photos. Send this photos to telegram chanel to approve it or regenerate.",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "Core\\": "core/",
+            "Core\\Components\\": "core/components/",
+            "Modules\\Telegram\\Commands\\": "modules/telegram/commands/",
+            "Modules\\Telegram\\": "modules/telegram/",
+            "App\\Controllers\\": "app/controllers/",
+            "App\\Models\\": "app/models/",
+            "App\\Views\\": "app/views/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Oleksandr Svitlyk",
+            "email": "oleksandrsvitlyk@gmail.com"
+        }
+    ],
+    "require": {
+        "telegram-bot/api": "^2.5",
+        "predis/predis": "^2.3"
+    }
+}
