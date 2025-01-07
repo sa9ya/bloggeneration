@@ -2,12 +2,14 @@
 <p>Welcome to the Blog Generation Web Application! This test project is a PHP-based web application designed to streamline the process of creating, managing, and publishing blog content with AI. Everything managing by telegram bot. From telegram you can set up this bot and start the cron jobs to generates blog post for meta products, telegram or websites.</p>
 <hr>
 <h3>Features</h3>
-<b>Dynamic Blog Creation</b>: Easily create and manage blog posts and images for them.
-<b>User Management</b>: Manage user settings and profiles.
-<b>Caching with Redis (File caching)</b>: Boost performance using Redis for data caching.
-<b>Modular Architecture</b>: Flexible and scalable core structure.
-<b>MVC Pattern</b>: Organized with models, views, and controllers.
-API Integration: Seamless integration with external APIs (OpenAI, Telegram).
+<ul>
+<li><b>Dynamic Blog Creation</b>: Easily create and manage blog posts and images for them.</li>
+<li><b>User Management</b>: Manage user settings and profiles.</li>
+<li><b>Caching with Redis (File caching)</b>: Boost performance using Redis for data caching.</li>
+<li><b>Modular Architecture</b>: Flexible and scalable core structure.</li>
+<li><b>MVC Pattern</b>: Organized with models, views, and controllers.</li>
+<li><b>API Integration</b>: Seamless integration with external APIs (OpenAI, Telegram).</li>
+</ul>
 <h3>Project Structure</h3>
 <ul>
 <li><b>core/</b>: Application core files (controllers, models, database handlers, etc.)</li>
@@ -18,20 +20,18 @@ API Integration: Seamless integration with external APIs (OpenAI, Telegram).
 <li><b>vendor/</b>: Third-party dependencies (managed by Composer).</li>
 </ul>
 <h3>Requirements</h3>
-<p>PHP 8.0 or higher
-Redis Server (not required)
-Composer (for dependency management)
+<p>PHP 8.0 or higher<br>
+Redis Server (not required)<br>
+Composer (for dependency management)<br>
 Web Server (Apache/Nginx)</p>
 <h3>Installation</h3>
 <p>Clone the repository:</br>
-```php
-git clone https://github.com/yourusername/bloggeneration.git
-```
-Navigate to the project directory:
-cd bloggeneration
-rename config-test folder to config
+git clone https://github.com/yourusername/bloggeneration.git</br>
+Navigate to the project directory:</br>
+cd bloggeneration</br>
+rename config-test folder to config</br><p>
 <h4>Install dependencies:</h4>
-composer install
+<p>composer install
 Configure the application:
 Copy the .env.example to .env and update the necessary configurations.
 cp .env.example .env
