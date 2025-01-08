@@ -19,7 +19,7 @@ class Language {
 	}
 
 	private function loadTranslations(): void {
-		$translationFile = __DIR__ . "/../lang/{$this->locale}.php";
+		$translationFile = __DIR__ . "/../config/language/{$this->locale}.php";
 		if (file_exists($translationFile)) {
 			$this->translations = require $translationFile;
 		} else {
@@ -27,7 +27,7 @@ class Language {
 		}
 	}
 
-	public function __get($name) {
+	public function get($name) {
 		return $this->translations[$name] ?? $name;
 	}
 }

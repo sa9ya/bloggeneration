@@ -38,7 +38,8 @@ rename `config-test` folder to `config`
 ### Testing
 
 Run tests to ensure the application is functioning correctly:
-
+```
 phpunit tests/
+```
 
 Happy coding!

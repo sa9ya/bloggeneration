@@ -10,7 +10,7 @@ class Core {
 	 * @return bool
 	 */
 	public function __isset(string $key): bool {
-		return isset($this->{$key});
+		return isset($this->attributes[$key]);
 	}
 
 	/**

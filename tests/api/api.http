@@ -21,7 +21,7 @@ Content-Type: application/json
       "type": "private"
     },
     "date": 1735312406,
-    "text": "/start",
+    "text": "/help",
     "entities": [
       {
         "offset": 0,

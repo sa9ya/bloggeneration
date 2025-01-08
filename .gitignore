@@ -1,3 +1,8 @@
+# Ignore files
 /config/
 /vendor/
 /log/
+
+# Ignore PHPStorm project files
+.idea/
+**/.DS_Store

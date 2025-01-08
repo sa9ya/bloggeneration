@@ -19,8 +19,12 @@ class Model extends ModelBase {
 		self::$tablePrefix = App::$app->config->get('db')['table_prefix'];
 	}
 
+	protected function getClassName(): string {
+		return (new \ReflectionClass($this))->getShortName();
+	}
+
 	protected function getTableNameFromClass(): string {
-		return strtolower((new \ReflectionClass($this))->getShortName());
+		return $snake = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->getClassName()));
 	}
 
 	protected function generateAlias(): string {
@@ -97,32 +101,25 @@ class Model extends ModelBase {
 		return $sql;
 	}
 
+	protected function setRelatedObjects($obj, $data = []) {
+		foreach ($this->aliasMap as $className) {
+			$cls = new $className();
+			if($cls->hasMatchingAttributes($data)) {
+				$attrName = lcfirst($cls->getClassName());
+				$obj->$attrName = $cls;
+				$obj->$attrName->loadExistingAttributes($data);
+			}
+		}
+		return $obj;
+	}
+
 	/**
 	 * @param array $result
 	 * @return static
 	 */
 	protected function hydrateResult(array $result): static {
-		$class = static::class;
-        $instance = new $class();
-		$relatedInstances = [];
-
-		foreach ($result as $key => $value) {
-			if (strpos($key, '.') !== false) {
-				list($relatedAlias, $relatedKey) = explode('.', $key);
-				$relatedClassName = $this->aliasMap[$relatedAlias] ?? $relatedAlias;
-				if (!isset($relatedInstances[$relatedClassName])) {
-					$relatedInstances[$relatedClassName] = new \stdClass();
-				}
-				$relatedInstances[$relatedClassName]->$relatedKey = $value;
-			} else {
-				$instance->$key = $value;
-			}
-		}
-
-		foreach ($relatedInstances as $className => $relatedObject) {
-			$instance->$className = $relatedObject;
-		}
-
+        $instance = $this->setRelatedObjects(new static(), $result);
+		$instance->loadExistingAttributes($result);
 		return $instance;
 	}
 
