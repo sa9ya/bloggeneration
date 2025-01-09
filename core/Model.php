@@ -104,10 +104,11 @@ class Model extends ModelBase {
 	protected function setRelatedObjects($obj, $data = []) {
 		foreach ($this->aliasMap as $className) {
 			$cls = new $className();
-			if($cls->hasMatchingAttributes($data)) {
+			$attr = array_intersect_key($data, array_flip($cls->getTableColumns()));
+			if (!empty($attr)) {
 				$attrName = lcfirst($cls->getClassName());
-				$obj->$attrName = $cls;
-				$obj->$attrName->loadExistingAttributes($data);
+				$cls->attributes = array_intersect_key($data, array_flip($cls->getTableColumns()));
+				$obj->attributes[$attrName] = $cls;
 			}
 		}
 		return $obj;
@@ -118,8 +119,9 @@ class Model extends ModelBase {
 	 * @return static
 	 */
 	protected function hydrateResult(array $result): static {
-        $instance = $this->setRelatedObjects(new static(), $result);
-		$instance->loadExistingAttributes($result);
+		$obj = new static();
+		$obj->attributes = array_intersect_key($result, array_flip($obj->getTableColumns()));
+        $instance = $this->setRelatedObjects($obj, $result);
 		return $instance;
 	}
 
@@ -162,6 +164,7 @@ class Model extends ModelBase {
 	}
 
 	protected function getTableColumns(): array {
+		// will be cached
 		static $cache = [];
 
 		$tableName = $this->getTableName();

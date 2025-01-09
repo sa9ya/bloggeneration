@@ -9,6 +9,10 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class SettingsCommand extends Command {
 
+	private array $stepArray = [
+		1 => "set_language_",
+	];
+
 	public function getName(): string
 	{
 		return "/settings";
@@ -24,25 +28,20 @@ class SettingsCommand extends Command {
 		$chat_id = $this->userModel->user_id;
 
 		if (!$chat_id) {
-			\App::$app->logger->error('Chat ID not found for settings command.');
+			Logger::error('Chat ID not found for settings command.');
 			return;
 		}
 		$this->step = \App::$app->cache->get('user_' . $chat_id . '_step') ?? 0;
-		Logger::error('asd', $chat_id . " asddddd " . $this->step);
+		Logger::error('lang', "data " . json_encode($this->userModel));
+
+		if (!$this->isStepCorrect($this->userModel->data)) {
+			$this->telegram->sendMessage($chat_id, "Невірні дані. Будь ласка користуйтесь кнопками під останнім записом");
+			exit;
+		}
 
 		switch ($this->step) {
 			case 0:
-				$languages = Language::getLanguages();
-				$keyboard = new InlineKeyboardMarkup([[
-					[
-						'text' => "eng",
-						'callback_data' => 'set_language_1'
-					],
-					[
-						'text' => "ukr",
-						'callback_data' => 'set_language_2'
-					]
-				]]);
+				$keyboard = new InlineKeyboardMarkup([$this->generateLanguageMenu()]);
 
 				$this->telegram->sendMessage($chat_id, "Оберіть мову:", null, false, null, $keyboard);
 				\App::$app->cache->set('user_' . $chat_id . '_step', 1);
@@ -50,33 +49,35 @@ class SettingsCommand extends Command {
 			case 1:
 				$userSettings = new TelegramUserSettings();
 				$userSettings->language_id = substr($this->userModel->data, strlen('set_language_'));
-				$userSettings->user_id = $this->userModel->id;
-				Logger::error('asd setings ', json_encode($userSettings->toArray()));
-				$language = Language::getLanguageById($userSettings->language_id);
-				Logger::error('asd', json_encode($language));
-
+				$userSettings->telegram_user_id = $this->userModel->id;
 				$userSettings->save();
-				$this->telegram->sendMessage($chat_id, "Аккаунт налаштовано! Ваші налаштування:\n
-				Мова - " . $language['name']);
-			default:
-				\App::$app->cache->del('user_' . $chat_id . '_step');
+				break;
 		}
-		Logger::error('asd', "asddddd stp " . $this->step);
+
+		if($this->step) {
+			$language = Language::getLanguageById($userSettings->language_id);
+			\App::$app->cache->del('user_' . $chat_id . '_step');
+			$this->telegram->sendMessage($chat_id, "Аккаунт налаштовано! Ваші налаштування:\n
+				Мова - " . $language['name']);
+		}
 	}
 
-	private function generateLanguageMenu(array $languages): array
+	private function generateLanguageMenu(): array
 	{
+		$languages = Language::getLanguages();
 		$buttons = [];
 
 		foreach ($languages as $language) {
 			$buttons[] = [
-				[
-					'text' => $language['name'],
-					'callback_data' => 'set_language_' . $language['id']
-				]
+				'text' => $language['name'],
+				'callback_data' => 'set_language_' . $language['id']
 			];
 		}
 
 		return $buttons;
+	}
+
+	private function isStepCorrect($data) {
+		return str_contains($data, $this->stepArray[$this->step]);
 	}
 }

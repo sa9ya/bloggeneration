@@ -3,6 +3,7 @@ namespace Modules\Telegram\Commands;
 
 use App\Models\Language;
 use App\Models\TelegramUserSettings;
+use Core\Logger;
 use Modules\Telegram\Command;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
@@ -24,7 +25,7 @@ class UpdateSettingsCommand extends Command {
 		$chat_id = $this->userModel->user_id;
 
 		if (!$chat_id) {
-			\App::$app->logger->error('Chat ID not found for settings command.');
+			Logger::error('Chat ID not found for settings command.');
 			return;
 		}
 		//$this->step = \App::$app->cache->get('user_' . $chat_id . '_step') ?? 0;

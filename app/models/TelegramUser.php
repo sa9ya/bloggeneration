@@ -9,7 +9,7 @@ class TelegramUser extends Model {
 
 	protected string $table = 'telegram_user';
 
-	public $id;
+	public $data;
 	public int $status = 1;
 
 	/**
@@ -17,14 +17,12 @@ class TelegramUser extends Model {
 	 * @return TelegramUser|null
 	 */
 	public static function getUser($user_id) {
-		if(!empty(\App::$app->cache->hgetall('chat' . $user_id))) {
-			return (new self)->load(\App::$app->cache->hgetall('chat' . $user_id));
-		}
-
-		$user = self::find()->where(['user_id' => $user_id])->leftJoin(TelegramUserSettings::class, ['user_id' => 'id'])->one();
-		if(!empty($user)) {
-			\App::$app->cache->hmset('chat' . $user_id, $user->toArray(), 72000);
-		}
+		// $user = \App::$app->cache->hgetall('chat' . $user_id);
+//		if(empty($user)) {
+			$user = self::find()->where(['user_id' => $user_id])->leftJoin(TelegramUserSettings::class, ['telegram_user_id' => 'id'])->one();
+//			\App::$app->cache->hmset('chat' . $user_id, $user->toArray(), 72000);
+//			return (new self)->load(\App::$app->cache->hgetall('chat' . $user_id));
+//		}
 
 		return $user;
 	}

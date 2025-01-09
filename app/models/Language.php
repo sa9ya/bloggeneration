@@ -10,11 +10,11 @@ class Language extends Model {
 	public $url;
 
 	public static function getLanguages() {
-		$languages = json_decode(\App::$app->cache->get('languages'), true);
-		if(empty($languages)) {
+//		$languages = json_decode(\App::$app->cache->get('languages'), true);
+//		if(empty($languages)) {
 			$languages = self::find()->all(true);
-			\App::$app->cache->set('languages', json_encode($languages));
-		}
+//			\App::$app->cache->set('languages', json_encode($languages));
+//		}
 		return $languages;
 	}
 

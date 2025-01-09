@@ -10,13 +10,6 @@ class ComponentManager {
 		}
 	}
 
-//	protected function initializeComponent(array $component) {
-//		$class = $component['class'];
-//		$type = $component['type'] ?? '';
-//		$config = $component['config'] ?? [];
-//		return new $class($config);
-//	}
-
 	public function __get($name) {
 		return $this->components[$name] ?? null;
 	}
