@@ -43,7 +43,7 @@ class Telegram extends BotApi {
 	 */
 	public function handleRequest(): void {
 		$message = $this->userModel->message;
-		$chatId = $this->userModel->chat_id;
+		$chatId = $this->userModel->user_id;
 		if ($message) {
 			try {
 				$this->registry->handle($message);

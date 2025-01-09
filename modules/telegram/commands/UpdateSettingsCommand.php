@@ -21,7 +21,7 @@ class UpdateSettingsCommand extends Command {
 
 	public function execute(): void
 	{
-		$chat_id = $this->userModel->chat_id;
+		$chat_id = $this->userModel->user_id;
 
 		if (!$chat_id) {
 			\App::$app->logger->error('Chat ID not found for settings command.');
@@ -50,21 +50,5 @@ class UpdateSettingsCommand extends Command {
 				$this->telegram->sendMessage($chat_id, "Невідомий етап. Почніть налаштування знову.");
 				$this->step = 0;
 		}
-	}
-
-	private function generateLanguageMenu(array $languages): array
-	{
-		$buttons = [];
-
-		foreach ($languages as $language) {
-			$buttons[] = [
-				[
-					'text' => $language->name,
-					'callback_data' => 'set_language_' . $language->id
-				]
-			];
-		}
-
-		return $buttons;
 	}
 }

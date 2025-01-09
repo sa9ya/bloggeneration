@@ -2,32 +2,21 @@ POST {{base_url}}/telegram/handle-webhook
 Content-Type: application/json
 
 {
-  "update_id": 521107129,
+  "update_id": 521107297,
   "message": {
-    "message_id": 422,
+    "message_id": 621,
     "from": {
-      "id": 5849430852,
+      "id": 950064034,
       "is_bot": false,
-      "first_name": "Alex",
-      "last_name": "Adv",
-      "username": "wolext",
-      "language_code": "en"
+      "first_name": "Svitlyk",
+      "language_code": "uk"
     },
     "chat": {
-      "id": 5849430852,
-      "first_name": "Alex",
-      "last_name": "Adv",
-      "username": "wolext",
+      "id": 950064034,
+      "first_name": "Svitlyk",
       "type": "private"
     },
-    "date": 1735312406,
-    "text": "/help",
-    "entities": [
-      {
-        "offset": 0,
-        "length": 6,
-        "type": "bot_command"
-      }
-    ]
+    "date": 1736379664,
+    "text": "\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430"
   }
 }

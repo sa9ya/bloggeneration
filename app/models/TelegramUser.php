@@ -9,19 +9,23 @@ class TelegramUser extends Model {
 
 	protected string $table = 'telegram_user';
 
-	public $chat_id;
-	public $user_id;
-	public int $status = 0;
+	public $id;
+	public int $status = 1;
 
 	/**
 	 * @param array $data
 	 * @return TelegramUser|null
 	 */
-	public function getUser($user_id) {
+	public static function getUser($user_id) {
 		if(!empty(\App::$app->cache->hgetall('chat' . $user_id))) {
 			return (new self)->load(\App::$app->cache->hgetall('chat' . $user_id));
 		}
 
-		return self::find()->where(['user_id' => $user_id])->leftJoin(TelegramUserSettings::class, ['user_id' => 'id'])->one();
+		$user = self::find()->where(['user_id' => $user_id])->leftJoin(TelegramUserSettings::class, ['user_id' => 'id'])->one();
+		if(!empty($user)) {
+			\App::$app->cache->hmset('chat' . $user_id, $user->toArray(), 72000);
+		}
+
+		return $user;
 	}
 }

@@ -5,17 +5,23 @@ use Core\Model;
 
 class Language extends Model {
 
+	public $id;
+	public $name;
+	public $url;
+
 	public static function getLanguages() {
-		//$languages = \App::$app->cache->hmget('languages');
-		//if(empty($languages)) {
-			$languages = self::find()->all();
-			\App::$app->cache->hmset('languages', $languages, 72000);
-		//}
-		return  $languages;
+		$languages = json_decode(\App::$app->cache->get('languages'), true);
+		if(empty($languages)) {
+			$languages = self::find()->all(true);
+			\App::$app->cache->set('languages', json_encode($languages));
+		}
+		return $languages;
 	}
 
-	public function getLanguageById($language_id) {
-		return array_filter(self::getLanguages(), fn($item) => $item['id'] === $language_id)['name'];
+	public static function getLanguageById($language_id) {
+		$language = array_filter(self::getLanguages(), function($language) use ($language_id) {
+			return $language['id'] == $language_id;
+		});
+		return reset($language);
 	}
-
 }

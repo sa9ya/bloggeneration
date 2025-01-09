@@ -13,31 +13,28 @@ class TelegramController extends Controller {
 	private Telegram $telegram;
 
 	public function handleWebhook($args): void {
+		Logger::error('arguments 1', $args);
 		try {
-			$user = new TelegramUser();
 			$data = TelegramUserAdapter::transform($args);
-			$user = $user->getUser($data['user_id']);
-			$user->load($data);
-
+			Logger::error('arguments 2', $data);
+			$user = TelegramUser::getUser($data['user_id']);
 			if(empty($user)) {
+				$user = new TelegramUser();
+				$user->load($data);
 				$user->save();
+			} else {
+				$user->load($data);
 			}
 
 			$this->telegram = new Telegram(App::$app->config->get('telegram')['token']);
-			$this->telegram->loadModel($user);
 
 			if(!isset($user->telegramUserSettings) && !is_object($user->telegramUserSettings)) {
-
-				$this->telegram->handleRequest();
+				$user->message = '/settings';
+			} elseif ($user->status === 0) {
+				$this->telegram->sendMessage($user->user_id, "Вам закритий доступ до можливостей цььго бота!\nЗверніться до адміністратора щоб отримати доступ @Isa9yaI");
 				exit();
 			}
-
-
-			if($user->status === 0) {
-				$this->telegram->sendMessage($user->chat_id, "Вам закритий доступ до можливостей цььго бота!\nЗверніться до адміністратора щоб отримати доступ @Isa9yaI");
-				exit();
-			}
-
+			$this->telegram->loadModel($user);
 			$this->telegram->handleRequest();
 		} catch (\Exception $e) {
 			Logger::error($e->getMessage(), $e->getTrace());

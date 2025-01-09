@@ -18,7 +18,7 @@ class CreateCommand extends Command
 	public function execute(): void
 	{
 		$full_name = ($this->userModel->first_name . ' ' . $this->userModel->last_name) ?? '';
-		$this->telegram->sendMessage($this->userModel->chat_id, "Ласкаво просимо до бота " . $full_name . "!\n
+		$this->telegram->sendMessage($this->userModel->user_id, "Ласкаво просимо до бота " . $full_name . "!\n
 		Використовуйте /help, щоб побачити доступні команди.\n
 		Для початку роботи потрібно пройти етап налаштування, бажаєте продовжити?");
 	}

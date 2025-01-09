@@ -25,6 +25,6 @@ class HelpCommand extends Command {
 			}
 			$message .= "{$command->getName()} - {$command->getDescription()}\n";
 		}
-		$this->telegram->sendMessage($this->userModel->chat_id, $message);
+		$this->telegram->sendMessage($this->userModel->user_id, $message);
 	}
 }

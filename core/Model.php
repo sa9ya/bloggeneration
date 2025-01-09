@@ -199,13 +199,17 @@ class Model extends ModelBase {
 		}
 	}
 
-	public function all(): array {
+	public function all(bool $asArray = false): array {
 		$sql = $this->buildSelectQuery();
 
 		try {
 			$stmt = self::$pdo->prepare($sql);
 			$stmt->execute($this->conditions);
 			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			if ($asArray) {
+				return $results;
+			}
 
 			$instances = [];
 			foreach ($results as $result) {
@@ -220,6 +224,6 @@ class Model extends ModelBase {
 	}
 
 	public function toArray(): array {
-		return $this->attributes;
+		return get_object_vars($this);
 	}
 }
