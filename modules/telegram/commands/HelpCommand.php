@@ -15,7 +15,7 @@ class HelpCommand extends Command {
 		return 'Список доступних команд.';
 	}
 
-	public function execute(): void {
+	public function getText() {
 		$commands = $this->registry->getCommands();
 
 		$message = "Доступні команди:\n";
@@ -25,6 +25,10 @@ class HelpCommand extends Command {
 			}
 			$message .= "{$command->getName()} - {$command->getDescription()}\n";
 		}
-		$this->telegram->sendMessage($this->userModel->user_id, $message);
+		return $message;
+	}
+
+	public function execute(): void {
+		$this->telegram->sendMessage($this->userModel->user_id, $this->getText());
 	}
 }

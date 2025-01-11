@@ -4,7 +4,7 @@ namespace Core;
 class Language {
 	private static ?Language $instance = null;
 	private array $translations = [];
-	private string $locale;
+	public string $locale;
 
 	private function __construct(string $locale = 'en') {
 		$this->locale = $locale;
@@ -29,5 +29,9 @@ class Language {
 
 	public function get($name) {
 		return $this->translations[$name] ?? $name;
+	}
+
+	public function setLocale(string $locale) {
+		$this->locale = $locale;
 	}
 }

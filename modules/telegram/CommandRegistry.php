@@ -14,6 +14,10 @@ class CommandRegistry {
 		return $this->commands;
 	}
 
+	public function getCommandText($commandName) {
+		return $this->commands[$commandName]->getText() ?? '';
+	}
+
 	public function handle(string $commandName): void {
 		if (isset($this->commands[$commandName])) {
 			try {

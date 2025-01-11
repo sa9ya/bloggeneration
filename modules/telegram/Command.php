@@ -54,6 +54,10 @@ abstract class Command {
 		return $this->hidden;
 	}
 
+	public function getText() {
+		return '';
+	}
+
 	/**
 	 *  Execute command
 	 *
@@ -62,7 +66,7 @@ abstract class Command {
 
 	protected function getStep() {
 		if (empty($this->step)) {
-			$this->step = \App::$app->cache->get('step_' . $this->getUserId());
+			$this->step = \App::$app->cache->get('step_' . $this->getUserId()) ?? 0;
 		}
 		return $this->step;
 	}
@@ -80,6 +84,6 @@ abstract class Command {
 	}
 
 	protected function checkStep($data) {
-		return str_contains($data, $this->stepArray[$this->getStep()]);
+		return ($this->getStep() === 0 || str_contains($data, $this->stepArray[$this->getStep()]));
 	}
 }

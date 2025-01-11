@@ -190,7 +190,6 @@ class Model extends ModelBase {
 	 */
 	public function one(): ?static {
 		$sql = $this->buildSelectQuery();
-		Logger::info('sql query', $sql);
 
 		try {
 			$stmt = self::$pdo->prepare($sql);

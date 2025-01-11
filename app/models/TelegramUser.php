@@ -23,6 +23,10 @@ class TelegramUser extends Model {
 //			return (new self)->load(\App::$app->cache->hgetall('chat' . $user_id));
 //		}
 
+		if(!empty($user) && isset($user->telegramUserSettings->language_id)) {
+			\App::$app->language = \App::$app->language->getInstance(Language::getLanguageById($user->telegramUserSettings->language_id)['locale']);
+		}
+
 		return $user;
 	}
 }

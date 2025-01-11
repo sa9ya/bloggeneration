@@ -49,9 +49,9 @@ class Telegram extends BotApi {
 			try {
 				$this->registry->handle($message);
 			} catch (\Exception $e) {
-				Logger::error($e->getMessage(), $e->getTrace());
 				if ($chatId) {
-					$this->sendMessage($chatId, "Command not found: " . $message);
+					$this->sendMessage($chatId, \App::$app->language->get("Command not found: ") . $message . "\n" .
+						($this->registry->getCommandText('/help')));
 				}
 			}
 		}

@@ -11,7 +11,7 @@ class CreateCommand extends Command
 	}
 
 	public function getDescription(): string {
-		return 'Створення і налаштування проекту. Щоб вийти будь ласка введіть /exit.\nУвага! дані не збережуться після натискання /exit.';
+		return 'Створення і налаштування проекту.';
 	}
 
 	public function execute(): void {
@@ -24,7 +24,5 @@ class CreateCommand extends Command
 			$this->telegram->sendMessage($this->getUserId(), "Невірні дані. Будь ласка спробуйте ще раз і дотримуйтесь інструкцій.");
 			exit;
 		}
-
-
 	}
 }

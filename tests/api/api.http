@@ -20,7 +20,7 @@ Content-Type: application/json
             "type": "private"
         },
         "date": 1736560231,
-        "text": "/start",
+        "text": "/startasd",
         "entities": [
             {
                 "offset": 0,

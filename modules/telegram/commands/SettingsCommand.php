@@ -22,7 +22,7 @@ class SettingsCommand extends Command {
 
 	public function getDescription(): string
 	{
-		return \App::$app->language->get('setting_command_description');
+		return \App::$app->language->get('Settings');
 	}
 
 	public function execute(): void
@@ -32,15 +32,15 @@ class SettingsCommand extends Command {
 			return;
 		}
 
-		if (!$this->checkStep($this->userModel->data)) {
-			$this->telegram->sendMessage($this->getUserId(), "Невірні дані.");
-			exit;
-		}
-
 		switch ($this->getStep()) {
 			case 'save_language':
+				$language_id = (int) substr($this->userModel->data, strlen('set_language_'));
+				if ($this->checkLanguage($language_id)) {
+					$this->telegram->sendMessage($this->getUserId(), "Невірні дані. Будь ласка користуйтесь клавіатурою під сповіщенням.");
+					exit;
+				}
 				$userSettings = new TelegramUserSettings();
-				$userSettings->language_id = substr($this->userModel->data, strlen('set_language_'));
+				$userSettings->language_id = $language_id;
 				$userSettings->telegram_user_id = $this->userModel->id;
 				if ($userSettings->save()) {
 					$this->settingDone($userSettings);
@@ -68,6 +68,10 @@ class SettingsCommand extends Command {
 		}
 
 		return $buttons;
+	}
+
+	private function checkLanguage($language_id) {
+		return empty(Language::getLanguageById($language_id));
 	}
 
 	private function settingDone($userSettings) {
