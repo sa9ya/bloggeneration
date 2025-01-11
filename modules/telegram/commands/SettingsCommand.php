@@ -9,8 +9,10 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class SettingsCommand extends Command {
 
-	private array $stepArray = [
-		1 => "set_language_",
+
+	protected bool $hidden = true;
+	protected array $stepArray = [
+		'save_language' => "set_language_",
 	];
 
 	public function getName(): string
@@ -25,40 +27,31 @@ class SettingsCommand extends Command {
 
 	public function execute(): void
 	{
-		$chat_id = $this->userModel->user_id;
-
-		if (!$chat_id) {
+		if (!$this->getUserId()) {
 			Logger::error('Chat ID not found for settings command.');
 			return;
 		}
-		$this->step = \App::$app->cache->get('user_' . $chat_id . '_step') ?? 0;
-		Logger::error('lang', "data " . json_encode($this->userModel));
 
-		if (!$this->isStepCorrect($this->userModel->data)) {
-			$this->telegram->sendMessage($chat_id, "Невірні дані. Будь ласка користуйтесь кнопками під останнім записом");
+		if (!$this->checkStep($this->userModel->data)) {
+			$this->telegram->sendMessage($this->getUserId(), "Невірні дані.");
 			exit;
 		}
 
-		switch ($this->step) {
-			case 0:
-				$keyboard = new InlineKeyboardMarkup([$this->generateLanguageMenu()]);
-
-				$this->telegram->sendMessage($chat_id, "Оберіть мову:", null, false, null, $keyboard);
-				\App::$app->cache->set('user_' . $chat_id . '_step', 1);
-				break;
-			case 1:
+		switch ($this->getStep()) {
+			case 'save_language':
 				$userSettings = new TelegramUserSettings();
 				$userSettings->language_id = substr($this->userModel->data, strlen('set_language_'));
 				$userSettings->telegram_user_id = $this->userModel->id;
-				$userSettings->save();
+				if ($userSettings->save()) {
+					$this->settingDone($userSettings);
+				}
 				break;
-		}
+			default:
+				$keyboard = new InlineKeyboardMarkup([$this->generateLanguageMenu()]);
 
-		if($this->step) {
-			$language = Language::getLanguageById($userSettings->language_id);
-			\App::$app->cache->del('user_' . $chat_id . '_step');
-			$this->telegram->sendMessage($chat_id, "Аккаунт налаштовано! Ваші налаштування:\n
-				Мова - " . $language['name']);
+				$this->telegram->sendMessage($this->getUserId(), "Оберіть мову:", null, false, null, $keyboard);
+				$this->setStep( 'save_language');
+				break;
 		}
 	}
 
@@ -77,7 +70,10 @@ class SettingsCommand extends Command {
 		return $buttons;
 	}
 
-	private function isStepCorrect($data) {
-		return str_contains($data, $this->stepArray[$this->step]);
+	private function settingDone($userSettings) {
+			$language = Language::getLanguageById($userSettings->language_id);
+			$this->removeStep();
+			$this->telegram->sendMessage($this->getUserId(), "Аккаунт налаштовано! Ваші налаштування:\n
+				Мова - " . $language['name']);
 	}
 }

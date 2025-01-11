@@ -41,7 +41,7 @@ class TelegramController extends Controller {
 		}
 	}
 
-	public function cronTelegram($args): void {
+	public function cronTelegram(): void {
 
 	}
 }

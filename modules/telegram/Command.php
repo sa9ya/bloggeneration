@@ -9,6 +9,7 @@ abstract class Command {
 	protected Telegram $telegram;
 	protected CommandRegistry $registry;
 	protected ModelBase $userModel;
+	protected array $stepArray = [];
 
 	public function __construct(Telegram $telegram, CommandRegistry $commandRegistry, ModelBase $userModel) {
 		$this->telegram = $telegram;
@@ -58,4 +59,27 @@ abstract class Command {
 	 *
 	 */
 	abstract public function execute(): void;
+
+	protected function getStep() {
+		if (empty($this->step)) {
+			$this->step = \App::$app->cache->get('step_' . $this->getUserId());
+		}
+		return $this->step;
+	}
+
+	protected function setStep($step): void {
+		\App::$app->cache->set('step_' . $this->getUserId(), $step);
+	}
+
+	protected function removeStep(): void {
+		\App::$app->cache->del('step_' . $this->getUserId());
+	}
+
+	protected function getUserId(): int {
+		return $this->userModel->user_id ?? 0;
+	}
+
+	protected function checkStep($data) {
+		return str_contains($data, $this->stepArray[$this->getStep()]);
+	}
 }

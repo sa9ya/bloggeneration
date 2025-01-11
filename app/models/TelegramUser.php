@@ -10,7 +10,6 @@ class TelegramUser extends Model {
 	protected string $table = 'telegram_user';
 
 	public $data;
-	public int $status = 1;
 
 	/**
 	 * @param array $data

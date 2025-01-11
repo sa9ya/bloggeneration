@@ -19,7 +19,6 @@ class TelegramUserAdapter {
 				'first_name' => $from['first_name'] ?? '',
 				'last_name' => $from['last_name'] ?? '',
 				'chat_id' => $chat['id'] ?? null,
-				'status' => 1,
 				'data' => $data['callback_query']['data']
 			];
 		} else {
@@ -33,7 +32,6 @@ class TelegramUserAdapter {
 				'first_name' => $from['first_name'] ?? '',
 				'last_name' => $from['last_name'] ?? '',
 				'chat_id' => $chat['id'] ?? null,
-				'status' => 1,
 				'data' => $data['data']
 			];
 		}

@@ -5,6 +5,7 @@ use Modules\Telegram\Command;
 
 class StartCommand extends Command
 {
+	protected bool $hidden = true;
 	public function getName(): string
 	{
 		return '/start';

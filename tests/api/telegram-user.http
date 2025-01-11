@@ -1,0 +1,51 @@
+POST {{base_url}}/telegram/handle-webhook
+Content-Type: application/json
+
+{
+  "update_id": 521107339,
+  "callback_query": {
+    "id": "6676370137331272739",
+    "from": {
+      "id": 5849430852,
+      "is_bot": false,
+      "first_name": "Alex",
+      "last_name": "Adv",
+      "username": "wolext",
+      "language_code": "en"
+    },
+    "message": {
+      "message_id": 679,
+      "from": {
+        "id": 7678735804,
+        "is_bot": true,
+        "first_name": "advision_bot",
+        "username": "inspire_advision_bot"
+      },
+      "chat": {
+        "id": 5849430852,
+        "first_name": "Alex",
+        "last_name": "Adv",
+        "username": "wolext",
+        "type": "private"
+      },
+      "date": 1736395970,
+      "text": "\u041e\u0431\u0435\u0440\u0456\u0442\u044c \u043c\u043e\u0432\u0443:",
+      "reply_markup": {
+        "inline_keyboard": [
+          [
+            {
+              "text": "\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430",
+              "callback_data": "set_language_1"
+            },
+            {
+              "text": "English",
+              "callback_data": "set_language_2"
+            }
+          ]
+        ]
+      }
+    },
+    "chat_instance": "-7900645483010673874",
+    "data": "set_language_1"
+  }
+}

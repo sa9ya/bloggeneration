@@ -17,7 +17,8 @@ class Database {
 					App::$app->config->get('db')['user'],
 					App::$app->config->get('db')['pass']
 				);
-				self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				self::$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 			} catch (\PDOException $e) {
 				Logger::error('Database connection failed', $e);
 				exit('Database connection error.');
