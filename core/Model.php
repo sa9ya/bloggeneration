@@ -10,6 +10,7 @@ class Model extends ModelBase {
 	protected string $table;
 	protected array $attributes = [];
 	protected array $conditions = [];
+	protected array $execConditions = [];
 	protected array $joins = [];
 	protected static string $tablePrefix = '';
 	protected array $aliasMap = [];
@@ -93,7 +94,21 @@ class Model extends ModelBase {
 		if (!empty($this->conditions)) {
 			$conditionParts = [];
 			foreach ($this->conditions as $key => $value) {
-				$conditionParts[] = "$alias.$key = :$key";
+				if (is_int($key)) {
+					if (!is_array($value)) {
+						$conditionParts[] = $value;
+					} else {
+						// will be functional when user can set
+						// [['OR', 'example_value' => 'some_value'], ['another_example' => 'another_value']]
+					}
+				} else {
+					if (strpos($key, '.') !== false) {
+						$this->execConditions[str_replace('.', '', $key)] = $value;
+						$conditionParts[] = "$key = :" . str_replace('.', '', $key);
+					} else {
+						$conditionParts[] = "$alias.$key = :$key";
+					}
+				}
 			}
 			$sql .= ' WHERE ' . implode(' AND ', $conditionParts);
 		}
@@ -204,10 +219,12 @@ class Model extends ModelBase {
 
 	public function all(bool $asArray = false): array {
 		$sql = $this->buildSelectQuery();
+		var_dump($sql);
+		var_dump($this->execConditions);
 
 		try {
 			$stmt = self::$pdo->prepare($sql);
-			$stmt->execute($this->conditions);
+			$stmt->execute($this->execConditions);
 			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			if ($asArray) {
@@ -221,7 +238,7 @@ class Model extends ModelBase {
 
 			return $instances;
 		} catch (\PDOException $e) {
-			Logger::error('Select query failed', $e);
+			Logger::error('Query all results error', $e);
 			return [];
 		}
 	}

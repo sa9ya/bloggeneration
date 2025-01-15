@@ -5,15 +5,13 @@ namespace Core\Services;
 use Core\Base;
 use Exception;
 
-class OpenAIService extends Base {
+class OpenAIService {
 	private string $apiKey;
 	private string $apiBase;
 
 	public function __construct() {
-		parent::__construct();
-
-		$this->apiKey = App::$app->config->get('openai')['api_key'] ?? '';
-		$this->apiBase = App::$app->config->get('openai')['api_base'] ?? 'https://api.openai.com/v1';
+		$this->apiKey = \App::$app->config->get('openai')['api_key'];
+		$this->apiBase = \App::$app->config->get('openai')['api_base'];
 
 		if (empty($this->apiKey)) {
 			throw new Exception('API Key for OpenAI is not set in the configuration.');

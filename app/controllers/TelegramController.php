@@ -40,8 +40,4 @@ class TelegramController extends Controller {
 			Logger::error($e->getMessage(), $e->getTrace());
 		}
 	}
-
-	public function cronTelegram(): void {
-
-	}
 }

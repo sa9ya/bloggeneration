@@ -29,6 +29,7 @@ class HelpCommand extends Command {
 	}
 
 	public function execute(): void {
-		$this->telegram->sendMessage($this->userModel->user_id, $this->getText());
+		$response = $this->telegram->sendMessage($this->userModel->user_id, $this->getText());
+		Logger::info('test', $response);
 	}
 }
