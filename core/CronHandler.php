@@ -46,6 +46,7 @@ class CronHandler
 					'tps.generation_text' => 'generation_text',
 					'tu.chat_id' => 'chat_id',
 					'l.locale' => 'locale',
+					'tps.image' => 'generate_image',
 				])
 				->leftJoin(TelegramProjectSettings::class, ['telegram_project_id' => 'id'])
 				->leftJoin(CronTask::class, ['telegram_project_id' => 'id'])
@@ -56,7 +57,11 @@ class CronHandler
 
 			foreach ($projects as $project) {
 				$this->handleRequest($project);
-				sleep(30);
+				if($project['generate_image']) {
+					sleep(30);
+				} else {
+					sleep(10);
+				}
 			}
 		} catch (\Exception $e) {
 			Logger::error('Error fetching cron requests: ' . $e->getMessage(), $e);
@@ -80,20 +85,24 @@ class CronHandler
 			'image_generation_text' => $image_generation_text
 		] = $this->openAI->generateArticle($project['generation_text'], $project['generator_role']);
 
-		$image = new ImageHandler('images/');
-		$image->saveImageFromUrl($this->openAI->generateImage($image_generation_text), $project['user_id']);
-
 		$projectData = new ProjectCreatedData();
+		if($project['generate_image']) {
+			$image = new ImageHandler('images/');
+			$image->saveImageFromUrl($this->openAI->generateImage($image_generation_text), $project['user_id']);
+			$projectData->image = $image->getImageUrl();
+		}
+
 		$projectData->language_id = $project['project_language_id'];
 		$projectData->project_id = $project['project_id'];
-		$projectData->image = $image->getImageUrl();
 		$projectData->title = $title;
 		$projectData->body = $body;
 		$projectData->short_text = $short_text;
 		$projectData->text_for_image = $image_generation_text;
 
 		if ($projectData->save()) {
-			$this->telegram->sendPhoto($project['chat_id'], $projectData->image, \App::$app->language->get('New post for:') . " " . $project['name'] . "\n" . $projectData->short_text);
+			if($project['generate_image']) {
+				$this->telegram->sendPhoto($project['chat_id'], $projectData->image, $project['name'] . "\n" . $projectData->short_text);
+			}
 			$this->telegram->sendMessage($project['chat_id'], $this->telegram->escapeMarkdownV2($projectData->title . "\n\n" . $projectData->body), 'MarkdownV2');
 		}
 	}

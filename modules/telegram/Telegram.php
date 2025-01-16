@@ -72,7 +72,6 @@ class Telegram extends BotApi
 	public function escapeMarkdownV2(string $text): string
 	{
 		$specialCharacters = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
-
 		foreach ($specialCharacters as $char) {
 			$text = str_replace($char, '\\' . $char, $text);
 		}
