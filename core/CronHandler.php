@@ -63,27 +63,23 @@ class CronHandler
 			'title' => $title,
 			'short_text' => $short_text,
 			'image_generation_text' => $image_generation_text
-		] = array('body' => 'asdfs',
-			'title' => 'sdfsdfg',
-			'short_text' => 'asfdsdg',
-			'image_generation_text' => 'asd'); // $this->openAI->generateArticle($project['generation_text'], $project['generator_role']);
+		] = $this->openAI->generateArticle($project['generation_text'], $project['generator_role']);
 
 		$image = new ImageHandler('images/');
-		$imageLink = 'https://admissions.rochester.edu/blog/wp-content/uploads/2015/08/test.png';
-		$image->saveImageFromUrl($imageLink, $project['id']);
+		$image->saveImageFromUrl($this->openAI->generateImage($image_generation_text), $project['id']);
 
 		$projectData = new ProjectCreatedData();
 		$projectData->language_id = $project['language_id'];
 		$projectData->project_id = $project['telegram_project_id'];
-		$projectData->image = $image->getImageUrl(); // $this->openAI->generateImage($image_generation_text)
+		$projectData->image = $image->getImageUrl();
 		$projectData->title = $title;
 		$projectData->body = $body;
 		$projectData->short_text = $short_text;
 		$projectData->text_for_image = $image_generation_text;
 
 		if ($projectData->save()) {
-			$this->telegram->sendPhoto($project['chat_id'], $projectData->image, \App::$app->language->get('New post for') . '\n' . $project['name'] . $projectData->short_text);
-			$this->telegram->sendMessage($project['chat_id'], $projectData->title . '\n' . $projectData->body, 'MarkdownV2');
+			$this->telegram->sendPhoto($project['chat_id'], $projectData->image, $this->telegram->escapeMarkdownV2(\App::$app->language->get('New post for:') . "\n" . $project['name'] . $projectData->short_text));
+			$this->telegram->sendMessage($project['chat_id'], $this->telegram->escapeMarkdownV2($projectData->title . "\n\n" . $projectData->body), 'MarkdownV2');
 		}
 	}
 }

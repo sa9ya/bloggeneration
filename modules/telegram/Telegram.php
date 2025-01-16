@@ -62,4 +62,21 @@ class Telegram extends BotApi
 			}
 		}
 	}
+
+	/**
+	 * Escape special characters for MarkdownV2 format in Telegram messages.
+	 *
+	 * @param string $text The text to escape.
+	 * @return string Escaped text.
+	 */
+	public function escapeMarkdownV2(string $text): string
+	{
+		$specialCharacters = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+
+		foreach ($specialCharacters as $char) {
+			$text = str_replace($char, '\\' . $char, $text);
+		}
+
+		return $text;
+	}
 }

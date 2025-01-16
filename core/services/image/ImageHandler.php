@@ -8,34 +8,25 @@ class ImageHandler
 	private string $filePath = '';
 
 	/**
-	 * Save an image from a URL to local storage.
+	 * Save an image from a URL with query parameters to local storage.
 	 *
-	 * @param string $imageUrl The URL of the image.
+	 * @param string $imageUrl The full URL of the image, including query parameters.
 	 * @param int $userId The ID of the user.
 	 * @return string The unique filename of the saved image.
 	 * @throws \Exception If the image cannot be downloaded or saved.
 	 */
-	public function saveImageFromUrl(string $imageUrl, int $userId = 0): string
+	public function saveImageFromUrl(string $imageUrl, int $userId): string
 	{
 		$userStoragePath = $this->getUserStoragePath($userId);
 
-		// Get the image data
-		$imageData = file_get_contents($imageUrl);
-		if ($imageData === false) {
-			throw new \Exception("Unable to download image from URL: $imageUrl");
-		}
+		// Download the image using cURL
+		$imageData = $this->downloadImage($imageUrl);
 
-		// Determine the extension from the URL
-		$extension = pathinfo($imageUrl, PATHINFO_EXTENSION);
-		if (!$extension) {
-			throw new \Exception("Unable to determine the image extension from URL: $imageUrl");
-		}
+		// Determine the extension from the URL or default to 'png'
+		$extension = $this->getImageExtension($imageUrl);
 
 		// Generate a unique filename
 		$filename = $this->generateUniqueFilename($extension);
-
-		// Ensure the filename is unique in the directory
-		$filename = $this->ensureUniqueFilename($userStoragePath, $filename);
 
 		// Save the image to local storage
 		$this->filePath = $userStoragePath . $filename;
@@ -44,6 +35,19 @@ class ImageHandler
 		}
 
 		return $filename;
+	}
+
+	/**
+	 * Determine the file extension of an image from its URL.
+	 *
+	 * @param string $imageUrl The URL of the image.
+	 * @return string The file extension (e.g., 'png', 'jpg').
+	 */
+	private function getImageExtension(string $imageUrl): string
+	{
+		$pathInfo = pathinfo(parse_url($imageUrl, PHP_URL_PATH));
+
+		return $pathInfo['extension'] ?? 'png';
 	}
 
 	/**
@@ -91,6 +95,38 @@ class ImageHandler
 			}
 		}
 		return $userStoragePath;
+	}
+
+	/**
+	 * Download image data from a URL using cURL.
+	 *
+	 * @param string $imageUrl The URL of the image.
+	 * @return string The binary data of the image.
+	 * @throws \Exception If the image cannot be downloaded.
+	 */
+	private function downloadImage(string $imageUrl): string
+	{
+		$ch = curl_init($imageUrl);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+		$imageData = curl_exec($ch);
+
+		if (curl_errno($ch)) {
+			throw new \Exception('cURL Error: ' . curl_error($ch));
+		}
+
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($httpCode !== 200) {
+			throw new \Exception("Failed to download image, HTTP Status Code: $httpCode");
+		}
+
+		curl_close($ch);
+
+		return $imageData;
 	}
 
 	/**
