@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Telegram\Commands;
 
 use Modules\Telegram\Command;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Telegram;
 
 use App\Models\TelegramUser;
@@ -7,16 +8,19 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
 
-class Telegram extends BotApi {
+class Telegram extends BotApi
+{
 	private CommandRegistry $registry;
 	private $userModel;
 
-	public function __construct($token) {
+	public function __construct($token)
+	{
 		parent::__construct($token);
 		$this->registry = new CommandRegistry();
 	}
 
-	public function loadModel($userModel): void {
+	public function loadModel($userModel): void
+	{
 		$this->userModel = $userModel;
 		$this->registerCommands();
 	}
@@ -24,7 +28,8 @@ class Telegram extends BotApi {
 	/**
 	 * Automatically register commands
 	 */
-	private function registerCommands(): void {
+	private function registerCommands(): void
+	{
 		$commandsPath = __DIR__ . '/commands/';
 		$namespace = 'Modules\\Telegram\\Commands\\';
 
@@ -41,7 +46,8 @@ class Telegram extends BotApi {
 	 * @throws Exception
 	 * @throws InvalidArgumentException
 	 */
-	public function handleRequest(): void {
+	public function handleRequest(): void
+	{
 		$message = $this->userModel->message;
 		$chatId = $this->userModel->user_id;
 

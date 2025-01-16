@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Telegram\Commands;
 
 use Modules\Telegram\Command;
@@ -6,6 +7,7 @@ use Modules\Telegram\Command;
 class StartCommand extends Command
 {
 	protected bool $hidden = true;
+
 	public function getName(): string
 	{
 		return '/start';

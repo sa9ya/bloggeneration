@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Core\Model;
 
-class TelegramProject extends Model
+class ProjectCreatedData extends Model
 {
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Telegram\Commands;
 
 use App\Models\Language;
@@ -7,16 +8,19 @@ use Core\Logger;
 use Modules\Telegram\Command;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
-class UpdateSettingsCommand extends Command {
+class UpdateSettingsCommand extends Command
+{
 
 	protected bool $hidden = true;
 	protected int $step = 0;
 
-	public function getName(): string {
+	public function getName(): string
+	{
 		return '/update_settings';
 	}
 
-	public function getDescription(): string {
+	public function getDescription(): string
+	{
 		return '';
 	}
 

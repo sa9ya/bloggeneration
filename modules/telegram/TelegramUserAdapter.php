@@ -1,13 +1,16 @@
 <?php
+
 namespace Modules\Telegram;
 
-class TelegramUserAdapter {
+class TelegramUserAdapter
+{
 	/**
 	 * Conver data to TelegramUser model format
 	 *
 	 * @return array
 	 */
-	public static function transform($data): array {
+	public static function transform($data): array
+	{
 		if (isset($data['callback_query'])) {
 			$from = $data['callback_query']['from'] ?? [];
 			$chat = $data['callback_query']['message']['chat'] ?? [];

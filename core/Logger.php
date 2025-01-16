@@ -1,12 +1,15 @@
 <?php
+
 namespace Core;
 
-class Logger {
+class Logger
+{
 	private static ?Logger $instance = null;
 	private string $logDir;
 	private string $logFile;
 
-	private function __construct() {
+	private function __construct()
+	{
 		$this->logDir = __DIR__ . '/../logs/';
 		$this->logFile = $this->generateLogFileName();
 		$this->cleanupOldLogs();
@@ -15,7 +18,8 @@ class Logger {
 	/**
 	 * @return Logger
 	 */
-	private static function getInstance(): Logger {
+	private static function getInstance(): Logger
+	{
 		if (self::$instance === null) {
 			self::$instance = new Logger();
 		}
@@ -27,7 +31,8 @@ class Logger {
 	 *
 	 * @return string
 	 */
-	private function generateLogFileName(): string {
+	private function generateLogFileName(): string
+	{
 		$date = date('Y-m-d');
 		return $this->logDir . "log_{$date}.log";
 	}
@@ -37,7 +42,8 @@ class Logger {
 	 *
 	 * @return void
 	 */
-	private function cleanupOldLogs(): void {
+	private function cleanupOldLogs(): void
+	{
 		$files = glob($this->logDir . 'log_*.log');
 		$now = time();
 
@@ -48,7 +54,8 @@ class Logger {
 		}
 	}
 
-	private function setFilePermissions(string $file): void {
+	private function setFilePermissions(string $file): void
+	{
 		if (!file_exists($file)) {
 			file_put_contents($file, '');
 		}
@@ -61,7 +68,8 @@ class Logger {
 	 * @param mixed $context
 	 * @return void
 	 */
-	private function log(string $level, string $message, $context = null): void {
+	private function log(string $level, string $message, $context = null): void
+	{
 		$date = date('Y-m-d H:i:s');
 		if ($context instanceof \Exception) {
 			// $data[] = $context->getTraceAsString();
@@ -83,7 +91,8 @@ class Logger {
 	 * @param mixed $context
 	 * @return void
 	 */
-	public static function info(string $message, $context = []): void {
+	public static function info(string $message, $context = []): void
+	{
 		self::getInstance()->log('INFO', $message, $context);
 	}
 
@@ -92,7 +101,8 @@ class Logger {
 	 * @param mixed $context
 	 * @return void
 	 */
-	public static function error(string $message, $context = []): void {
+	public static function error(string $message, $context = []): void
+	{
 		self::getInstance()->log('ERROR', $message, $context);
 	}
 }

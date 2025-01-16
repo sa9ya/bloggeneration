@@ -3,15 +3,24 @@
 namespace Core;
 
 use App\Models\CronTask;
+use App\Models\ProjectCreatedData;
 use App\Models\TelegramProject;
 use App\Models\TelegramProjectSettings;
+use App\Models\TelegramUser;
+use Core\Services\Image\ImageHandler;
+use Core\Services\Openai\OpenAIService;
 use DateTime;
+use Modules\Telegram\Telegram;
 
-class CronHandler {
+class CronHandler
+{
+	private OpenAIService $openAI;
+	private Telegram $telegram;
 
 	public function __construct()
 	{
-
+		$this->openAI = new OpenAIService();
+		$this->telegram = new Telegram(\App::$app->config->get('telegram')['token']);
 	}
 
 	/**
@@ -27,14 +36,17 @@ class CronHandler {
 			$frequency = "*/" . $hour;
 			var_dump($frequency);
 
-			$data = TelegramProject::find()
+			$projects = TelegramProject::find()
 				->leftJoin(TelegramProjectSettings::class, ['telegram_project_id' => 'id'])
 				->leftJoin(CronTask::class, ['telegram_project_id' => 'id'])
+				->leftJoin(TelegramUser::class, ['id' => 'user_id'])
 				->where(['ct.frequency' => $frequency, 'tps.telegram_project_id IS NOT NULL'])
 				->all(true);
-			var_dump($data);
+			foreach ($projects as $project) {
+				$this->handleRequest($project);
+			}
 		} catch (\Exception $e) {
-			$this->logger->error('Error fetching cron requests: ' . $e->getMessage());
+			Logger::error('Error fetching cron requests: ' . $e->getMessage());
 		}
 	}
 
@@ -44,44 +56,34 @@ class CronHandler {
 	 * @param array $request The cron request data.
 	 * @throws \Exception If processing fails.
 	 */
-	private function handleRequest(array $request): void
+	private function handleRequest(array $project): void
 	{
-		$this->logger->info('Processing request ID: ' . $request['id']);
+		[
+			'body' => $body,
+			'title' => $title,
+			'short_text' => $short_text,
+			'image_generation_text' => $image_generation_text
+		] = array('body' => 'asdfs',
+			'title' => 'sdfsdfg',
+			'short_text' => 'asfdsdg',
+			'image_generation_text' => 'asd'); // $this->openAI->generateArticle($project['generation_text'], $project['generator_role']);
 
-		switch ($request['type']) {
-			case 'generate_text':
-				$this->generateText($request);
-				break;
+		$image = new ImageHandler('images/');
+		$imageLink = 'https://admissions.rochester.edu/blog/wp-content/uploads/2015/08/test.png';
+		$image->saveImageFromUrl($imageLink, $project['id']);
 
-			case 'send_notification':
-				$this->sendNotification($request);
-				break;
+		$projectData = new ProjectCreatedData();
+		$projectData->language_id = $project['language_id'];
+		$projectData->project_id = $project['telegram_project_id'];
+		$projectData->image = $image->getImageUrl(); // $this->openAI->generateImage($image_generation_text)
+		$projectData->title = $title;
+		$projectData->body = $body;
+		$projectData->short_text = $short_text;
+		$projectData->text_for_image = $image_generation_text;
 
-			default:
-				throw new \InvalidArgumentException('Unknown request type: ' . $request['type']);
+		if ($projectData->save()) {
+			$this->telegram->sendPhoto($project['chat_id'], $projectData->image, \App::$app->language->get('New post for') . '\n' . $project['name'] . $projectData->short_text);
+			$this->telegram->sendMessage($project['chat_id'], $projectData->title . '\n' . $projectData->body, 'MarkdownV2');
 		}
-
-		$this->databaseService->markRequestAsCompleted($request['id']);
-	}
-
-	/**
-	 * Generate text (example operation).
-	 *
-	 * @param array $request The request data.
-	 */
-	private function generateText(array $request): void
-	{
-		$this->logger->info('Generating text for request ID: ' . $request['id']);
-	}
-
-	/**
-	 * Send a notification (example operation).
-	 *
-	 * @param array $request The request data.
-	 */
-	private function sendNotification(array $request): void
-	{
-		// Add logic to send a notification
-		$this->logger->info('Sending notification for request ID: ' . $request['id']);
 	}
 }

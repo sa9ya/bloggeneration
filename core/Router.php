@@ -1,14 +1,18 @@
 <?php
+
 namespace Core;
 
-class Router {
+class Router
+{
 	private $routes;
 
-	public function __construct() {
+	public function __construct()
+	{
 		$this->routes = require __DIR__ . '/../config/routes.php';
 	}
 
-	public function dispatch() {
+	public function dispatch()
+	{
 		$url = $_GET['url'] ?? '';
 		$url = trim($url, '/');
 
@@ -19,11 +23,13 @@ class Router {
 		}
 	}
 
-	private function isApiRoute($url) {
+	private function isApiRoute($url)
+	{
 		return strpos($url, 'api/') === 0;
 	}
 
-	private function handleRoute($url, $type) {
+	private function handleRoute($url, $type)
+	{
 		$routes = $this->routes[$type] ?? [];
 
 		if (!isset($routes[$url])) {

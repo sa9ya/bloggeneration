@@ -6,6 +6,8 @@
         "psr-4": {
             "Core\\": "core/",
             "Core\\Components\\": "core/components/",
+            "Core\\Services\\Image\\": "core/services/image",
+            "Core\\Services\\Openai\\": "core/services/openai",
             "Modules\\Telegram\\Commands\\": "modules/telegram/commands/",
             "Modules\\Telegram\\": "modules/telegram/",
             "App\\Controllers\\": "app/controllers/",
@@ -21,6 +23,8 @@
     ],
     "require": {
         "telegram-bot/api": "^2.5",
-        "predis/predis": "^2.3"
+        "predis/predis": "^2.3",
+        "ext-curl": "*",
+        "ext-fileinfo": "*"
     }
 }

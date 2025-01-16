@@ -5,17 +5,21 @@ namespace Modules\Telegram\Commands;
 use Core\Logger;
 use Modules\Telegram\Command;
 
-class HelpCommand extends Command {
+class HelpCommand extends Command
+{
 
-	public function getName(): string {
+	public function getName(): string
+	{
 		return '/help';
 	}
 
-	public function getDescription(): string {
+	public function getDescription(): string
+	{
 		return 'Список доступних команд.';
 	}
 
-	public function getText() {
+	public function getText()
+	{
 		$commands = $this->registry->getCommands();
 
 		$message = "Доступні команди:\n";
@@ -28,7 +32,8 @@ class HelpCommand extends Command {
 		return $message;
 	}
 
-	public function execute(): void {
+	public function execute(): void
+	{
 		$response = $this->telegram->sendMessage($this->userModel->user_id, $this->getText());
 		Logger::info('test', $response);
 	}

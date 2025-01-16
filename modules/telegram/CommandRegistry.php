@@ -1,24 +1,30 @@
 <?php
+
 namespace Modules\Telegram;
 
 use Core\Logger;
 
-class CommandRegistry {
+class CommandRegistry
+{
 	private array $commands = [];
 
-	public function register(Command $command): void {
+	public function register(Command $command): void
+	{
 		$this->commands[$command->getName()] = $command;
 	}
 
-	public function getCommands(): array {
+	public function getCommands(): array
+	{
 		return $this->commands;
 	}
 
-	public function getCommandText($commandName) {
+	public function getCommandText($commandName)
+	{
 		return $this->commands[$commandName]->getText() ?? '';
 	}
 
-	public function handle(string $commandName): void {
+	public function handle(string $commandName): void
+	{
 		if (isset($this->commands[$commandName])) {
 			try {
 				$this->commands[$commandName]->execute();

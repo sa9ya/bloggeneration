@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Telegram\Commands;
 
 use App\Models\Language;
@@ -7,7 +8,8 @@ use Core\Logger;
 use Modules\Telegram\Command;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
-class SettingsCommand extends Command {
+class SettingsCommand extends Command
+{
 
 
 	protected bool $hidden = true;
@@ -34,7 +36,7 @@ class SettingsCommand extends Command {
 
 		switch ($this->getStep()) {
 			case 'save_language':
-				$language_id = (int) substr($this->userModel->data, strlen('set_language_'));
+				$language_id = (int)substr($this->userModel->data, strlen('set_language_'));
 				if ($this->checkLanguage($language_id)) {
 					$this->telegram->sendMessage($this->getUserId(), "Невірні дані. Будь ласка користуйтесь клавіатурою під сповіщенням.");
 					exit;
@@ -50,7 +52,7 @@ class SettingsCommand extends Command {
 				$keyboard = new InlineKeyboardMarkup([$this->generateLanguageMenu()]);
 
 				$this->telegram->sendMessage($this->getUserId(), "Оберіть мову:", null, false, null, $keyboard);
-				$this->setStep( 'save_language');
+				$this->setStep('save_language');
 				break;
 		}
 	}
@@ -70,14 +72,16 @@ class SettingsCommand extends Command {
 		return $buttons;
 	}
 
-	private function checkLanguage($language_id) {
+	private function checkLanguage($language_id)
+	{
 		return empty(Language::getLanguageById($language_id));
 	}
 
-	private function settingDone($userSettings) {
-			$language = Language::getLanguageById($userSettings->language_id);
-			$this->removeStep();
-			$this->telegram->sendMessage($this->getUserId(), "Аккаунт налаштовано! Ваші налаштування:\n
+	private function settingDone($userSettings)
+	{
+		$language = Language::getLanguageById($userSettings->language_id);
+		$this->removeStep();
+		$this->telegram->sendMessage($this->getUserId(), "Аккаунт налаштовано! Ваші налаштування:\n
 				Мова - " . $language['name']);
 	}
 }

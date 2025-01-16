@@ -1,10 +1,12 @@
 <?php
+
 namespace Core;
 
 use App;
 use PDO;
 
-class Model extends ModelBase {
+class Model extends ModelBase
+{
 	protected static $instance = null;
 	protected static PDO $pdo;
 	protected string $table;
@@ -15,69 +17,80 @@ class Model extends ModelBase {
 	protected static string $tablePrefix = '';
 	protected array $aliasMap = [];
 
-	public function __construct() {
+	public function __construct()
+	{
 		self::$pdo = Database::getConnection();
 		self::$tablePrefix = App::$app->config->get('db')['table_prefix'];
 	}
 
-	protected function getClassName(): string {
+	protected function getClassName(): string
+	{
 		return (new \ReflectionClass($this))->getShortName();
 	}
 
-	protected function getTableNameFromClass(): string {
+	protected function getTableNameFromClass(): string
+	{
 		return $snake = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->getClassName()));
 	}
 
-	protected function generateAlias(): string {
+	protected function generateAlias(): string
+	{
 		$className = (new \ReflectionClass(static::class))->getShortName();
 		preg_match_all('/[A-Z]/', $className, $matches);
 		return strtolower(implode('', $matches[0]));
 	}
 
-	protected static function getInstance(): Model {
+	protected static function getInstance(): Model
+	{
 		if (self::$instance === null) {
 			self::$instance = new static();
 		}
 		return self::$instance;
 	}
 
-	protected function getTableName(): string {
-		if(!empty($this->table)) {
+	protected function getTableName(): string
+	{
+		if (!empty($this->table)) {
 			return self::$tablePrefix . $this->table;
 		}
 		return self::$tablePrefix . $this->getTableNameFromClass();
 	}
 
-	public static function find(): static {
+	public static function find(): static
+	{
 		return new static();
 	}
 
-	public static function findOne(array $conditions): Model {
+	public static function findOne(array $conditions): Model
+	{
 		return self::find()->where($conditions)->one();
 	}
 
 	/**
 	 * @throws \ReflectionException
 	 */
-	public function leftJoin(string $modelClass, array $on): self {
+	public function leftJoin(string $modelClass, array $on): self
+	{
 		$onConditions = [];
 		$instance = self::getInstance();
 		$joinedInstance = new $modelClass();
 		$this->aliasMap[$joinedInstance->generateAlias()] = $modelClass;
 		$modelTable = $joinedInstance->getTableName() . " AS " . $joinedInstance->generateAlias();
 		foreach ($on as $left => $right) {
-			$onConditions[] = $joinedInstance->generateAlias() . ".$left = ".$instance->generateAlias().".$right";
+			$onConditions[] = $joinedInstance->generateAlias() . ".$left = " . $instance->generateAlias() . ".$right";
 		}
 		$this->joins[] = "LEFT JOIN $modelTable ON " . implode(' AND ', $onConditions);
 		return $this;
 	}
 
-	public function where(array $conditions): self {
+	public function where(array $conditions): self
+	{
 		$this->conditions = $conditions;
 		return $this;
 	}
 
-	protected function buildSelectQuery(): string {
+	protected function buildSelectQuery(): string
+	{
 		$alias = $this->generateAlias();
 		$sql = "SELECT {$alias}.*";
 
@@ -116,7 +129,8 @@ class Model extends ModelBase {
 		return $sql;
 	}
 
-	protected function setRelatedObjects($obj, $data = []) {
+	protected function setRelatedObjects($obj, $data = [])
+	{
 		foreach ($this->aliasMap as $className) {
 			$cls = new $className();
 			$attr = array_intersect_key($data, array_flip($cls->getTableColumns()));
@@ -133,14 +147,16 @@ class Model extends ModelBase {
 	 * @param array $result
 	 * @return static
 	 */
-	protected function hydrateResult(array $result): static {
+	protected function hydrateResult(array $result): static
+	{
 		$obj = new static();
 		$obj->attributes = array_intersect_key($result, array_flip($obj->getTableColumns()));
-        $instance = $this->setRelatedObjects($obj, $result);
+		$instance = $this->setRelatedObjects($obj, $result);
 		return $instance;
 	}
 
-	public function save(): ?self {
+	public function save(): ?self
+	{
 		$now = date('Y-m-d H:i:s');
 		$this->attributes['date_updated'] = $now;
 		if (!isset($this->attributes['id'])) {
@@ -178,7 +194,8 @@ class Model extends ModelBase {
 		}
 	}
 
-	protected function getTableColumns(): array {
+	protected function getTableColumns(): array
+	{
 		// will be cached
 		static $cache = [];
 
@@ -203,7 +220,8 @@ class Model extends ModelBase {
 	/**
 	 * @return static|null
 	 */
-	public function one(): ?static {
+	public function one(): ?static
+	{
 		$sql = $this->buildSelectQuery();
 
 		try {
@@ -217,10 +235,9 @@ class Model extends ModelBase {
 		}
 	}
 
-	public function all(bool $asArray = false): array {
+	public function all(bool $asArray = false): array
+	{
 		$sql = $this->buildSelectQuery();
-		var_dump($sql);
-		var_dump($this->execConditions);
 
 		try {
 			$stmt = self::$pdo->prepare($sql);
@@ -243,7 +260,8 @@ class Model extends ModelBase {
 		}
 	}
 
-	public function toArray(): array {
+	public function toArray(): array
+	{
 		return get_object_vars($this);
 	}
 }
