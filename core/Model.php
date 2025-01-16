@@ -10,6 +10,7 @@ class Model extends ModelBase
 	protected static $instance = null;
 	protected static PDO $pdo;
 	protected string $table;
+	protected array $select;
 	protected array $attributes = [];
 	protected array $conditions = [];
 	protected array $execConditions = [];
@@ -66,6 +67,11 @@ class Model extends ModelBase
 		return self::find()->where($conditions)->one();
 	}
 
+	public function select(array $items) {
+		$this->select = $items;
+		return $this;
+	}
+
 	/**
 	 * @throws \ReflectionException
 	 */
@@ -77,7 +83,11 @@ class Model extends ModelBase
 		$this->aliasMap[$joinedInstance->generateAlias()] = $modelClass;
 		$modelTable = $joinedInstance->getTableName() . " AS " . $joinedInstance->generateAlias();
 		foreach ($on as $left => $right) {
-			$onConditions[] = $joinedInstance->generateAlias() . ".$left = " . $instance->generateAlias() . ".$right";
+			if (strpos($left, '.') !== false && strpos($right, '.') !== false) {
+				$onConditions[] = "$left = $right";
+			} else {
+				$onConditions[] = $joinedInstance->generateAlias() . ".$left = " . $instance->generateAlias() . ".$right";
+			}
 		}
 		$this->joins[] = "LEFT JOIN $modelTable ON " . implode(' AND ', $onConditions);
 		return $this;
@@ -89,17 +99,36 @@ class Model extends ModelBase
 		return $this;
 	}
 
+	protected function buildSelect() {
+		if(!empty($this->select)) {
+			$select = "SELECT ";
+			$count = count($this->select);
+			$currentIndex = 0;
+
+			foreach ($this->select as $item => $as_selected) {
+				$select .= " $item AS $as_selected";
+				if (++$currentIndex < $count) {
+					$select .= ", ";
+				}
+			}
+		} else {
+			$alias = $this->generateAlias();
+			$select = "SELECT {$alias}.*";
+			foreach ($this->joins as $join) {
+				preg_match('/AS (\w+)/', $join, $matches);
+				if (isset($matches[1])) {
+					$select .= ", {$matches[1]}.*";
+				}
+			}
+		}
+		return $select;
+	}
+
 	protected function buildSelectQuery(): string
 	{
 		$alias = $this->generateAlias();
-		$sql = "SELECT {$alias}.*";
 
-		foreach ($this->joins as $join) {
-			preg_match('/AS (\w+)/', $join, $matches);
-			if (isset($matches[1])) {
-				$sql .= ", {$matches[1]}.*";
-			}
-		}
+		$sql = $this->buildSelect();
 
 		$sql .= " FROM {$this->getTableName()} AS {$alias}";
 		$sql .= ' ' . implode(' ', $this->joins);

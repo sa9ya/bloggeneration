@@ -40,4 +40,8 @@ class App
 			$this->$name = $component['class'];
 		}
 	}
+
+	public function setLanguage(string $lang) {
+		$this->language = Language::getInstance($lang);
+	}
 }

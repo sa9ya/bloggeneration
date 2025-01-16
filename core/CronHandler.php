@@ -7,6 +7,7 @@ use App\Models\ProjectCreatedData;
 use App\Models\TelegramProject;
 use App\Models\TelegramProjectSettings;
 use App\Models\TelegramUser;
+use App\Models\Language;
 use Core\Services\Image\ImageHandler;
 use Core\Services\Openai\OpenAIService;
 use DateTime;
@@ -34,19 +35,31 @@ class CronHandler
 			$hour = $now->format('G');
 
 			$frequency = "*/" . $hour;
-			var_dump($frequency);
 
 			$projects = TelegramProject::find()
+				->select([
+					'tp.id' => 'project_id',
+					'tp.name' => 'name',
+					'tu.id' => 'user_id',
+					'tps.language_id' => 'project_language_id',
+					'tps.generator_role' => 'generator_role',
+					'tps.generation_text' => 'generation_text',
+					'tu.chat_id' => 'chat_id',
+					'l.locale' => 'locale',
+				])
 				->leftJoin(TelegramProjectSettings::class, ['telegram_project_id' => 'id'])
 				->leftJoin(CronTask::class, ['telegram_project_id' => 'id'])
 				->leftJoin(TelegramUser::class, ['id' => 'user_id'])
-				->where(['ct.frequency' => $frequency, 'tps.telegram_project_id IS NOT NULL'])
+				->leftJoin(Language::class, ['l.id' => 'tps.language_id'])
+				->where(['ct.frequency' => $frequency])
 				->all(true);
+
 			foreach ($projects as $project) {
 				$this->handleRequest($project);
+				sleep(30);
 			}
 		} catch (\Exception $e) {
-			Logger::error('Error fetching cron requests: ' . $e->getMessage());
+			Logger::error('Error fetching cron requests: ' . $e->getMessage(), $e);
 		}
 	}
 
@@ -58,6 +71,8 @@ class CronHandler
 	 */
 	private function handleRequest(array $project): void
 	{
+		\App::$app->setLanguage($project['locale']);
+
 		[
 			'body' => $body,
 			'title' => $title,
@@ -66,11 +81,11 @@ class CronHandler
 		] = $this->openAI->generateArticle($project['generation_text'], $project['generator_role']);
 
 		$image = new ImageHandler('images/');
-		$image->saveImageFromUrl($this->openAI->generateImage($image_generation_text), $project['id']);
+		$image->saveImageFromUrl($this->openAI->generateImage($image_generation_text), $project['user_id']);
 
 		$projectData = new ProjectCreatedData();
-		$projectData->language_id = $project['language_id'];
-		$projectData->project_id = $project['telegram_project_id'];
+		$projectData->language_id = $project['project_language_id'];
+		$projectData->project_id = $project['project_id'];
 		$projectData->image = $image->getImageUrl();
 		$projectData->title = $title;
 		$projectData->body = $body;
@@ -78,7 +93,7 @@ class CronHandler
 		$projectData->text_for_image = $image_generation_text;
 
 		if ($projectData->save()) {
-			$this->telegram->sendPhoto($project['chat_id'], $projectData->image, $this->telegram->escapeMarkdownV2(\App::$app->language->get('New post for:') . "\n" . $project['name'] . $projectData->short_text));
+			$this->telegram->sendPhoto($project['chat_id'], $projectData->image, \App::$app->language->get('New post for:') . " " . $project['name'] . "\n" . $projectData->short_text);
 			$this->telegram->sendMessage($project['chat_id'], $this->telegram->escapeMarkdownV2($projectData->title . "\n\n" . $projectData->body), 'MarkdownV2');
 		}
 	}

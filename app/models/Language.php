@@ -7,10 +7,6 @@ use Core\Model;
 class Language extends Model
 {
 
-	public $id;
-	public $name;
-	public $url;
-
 	public static function getLanguages()
 	{
 //		$languages = json_decode(\App::$app->cache->get('languages'), true);
