@@ -49,7 +49,7 @@ class OpenAIService
 			'model' => $options['model'],
 			'messages' => [
 				['role' => 'system', 'content' => $gpt_role ?? \App::$app->language->get('You are a professional content writer.')],
-				['role' => 'user', 'content' => \App::$app->language->get("Write a detailed article about: ") . $topic]
+				['role' => 'user', 'content' => \App::$app->language->get("Write a article: ") . $topic]
 			],
 			"response_format" => [
 				"type" => "json_schema",
@@ -66,15 +66,15 @@ class OpenAIService
 						"properties" => [
 							"body" => [
 								"type" => "string",
-								"description" => \App::$app->language->get('Body of the article. Must contain close to 200 words and hash tags in the end')
+								"description" => \App::$app->language->get('Body of the article')
 							],
 							"title" => [
 								"type" => "string",
-								"description" => \App::$app->language->get('Title of the article. Must be close to 10 words')
+								"description" => \App::$app->language->get('Title of the article')
 							],
 							"short_text" => [
 								"type" => "string",
-								"description" => \App::$app->language->get('Short text which be placed on the photo of the article. Without any special characters, must be up to 7 words')
+								"description" => \App::$app->language->get('Short text which be placed on the photo of the article')
 							],
 							"image_generation_text" => [
 								"type" => "string",

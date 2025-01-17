@@ -103,7 +103,7 @@ class CronHandler
 			if($project['generate_image']) {
 				$this->telegram->sendPhoto($project['chat_id'], $projectData->image, $project['name'] . "\n" . $projectData->short_text);
 			}
-			$this->telegram->sendMessage($project['chat_id'], $this->telegram->escapeMarkdownV2($projectData->title . "\n\n" . $projectData->body), 'MarkdownV2');
+			$this->telegram->sendMessage($project['chat_id'], $this->telegram->escapeMarkdownV2($projectData->title . "\n" . $projectData->body), 'MarkdownV2');
 		}
 	}
 }
